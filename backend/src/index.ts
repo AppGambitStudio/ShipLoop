@@ -1,10 +1,16 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import jwt from "@fastify/jwt";
 import { env } from "./config.js";
+import authPlugin from "./auth/plugin.js";
+import { authRoutes } from "./auth/routes.js";
 
 const app = Fastify({ logger: true });
 
 app.register(cors, { origin: env.FRONTEND_URL });
+app.register(jwt, { secret: env.JWT_SECRET });
+app.register(authPlugin);
+app.register(authRoutes);
 
 app.get("/health", async () => ({
   status: "ok",
