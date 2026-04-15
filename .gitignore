@@ -1,0 +1,11 @@
+.docs/
+*.log
+.env
+.tests/.env
+.tests/node_modules/
+.tests/results/
+.aidesigner/runs/
+.aidesigner/mcp-latest.html
+node_modules/
+.next/
+storage/
