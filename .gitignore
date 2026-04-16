@@ -26,16 +26,15 @@ Thumbs.db
 storage/
 
 # AI Designer (generated runs + temp)
-.aidesigner/runs/
-.aidesigner/mcp-latest.html
+.aidesigner/*
 
 # Test results
 __tests__/node_modules/
 __tests__/results/
 __tests__/.env
 
-# Internal docs (spec, not public)
-.docs/
+# Slack debug
+slack-debug.log
 
 # Superpowers plans (internal)
 docs/superpowers/
