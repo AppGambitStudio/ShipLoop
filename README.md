@@ -77,28 +77,31 @@ npm run dev
 
 ## Architecture
 
+ShipLoop uses a mix of AI patterns — not everything is an "agent." Only the Strategist is a true agent (multi-step reasoning with tools and memory). The rest are focused LLM workflows.
+
 ```
 Brain Dump (2 min)
      ↓
-[NOTICING AGENT] — extracts opportunities, detects emotional state
+[NOTICING] — single LLM call: extracts opportunities, detects emotional state
      ↓
-[ACTING AGENT] — drafts per platform, scores confidence, uses voice profile
+[ACTING] — two LLM calls: draft content + score quality (separate calls)
      ↓
-Approval Queue — approve / edit / skip (each action trains voice)
+Approval Queue — approve / edit / skip (each action trains voice profile)
      ↓
-[STRATEGIST] — weekly reasoning over accumulated data → directives
+[STRATEGIST AGENT] — multi-step agent: reads data via tools → reasons → writes directives
      ↓
 Better drafts next cycle (the loop compounds)
 ```
 
-### Four Agents
+### AI Components
 
-| Agent | Role | How it runs |
+| Component | Pattern | How it runs |
 |---|---|---|
-| **Strategist** | Thinks in weeks. Issues directives that shape everything. | Claude Managed Agents (multi-step, custom tools reading Postgres) |
-| **Noticing** | Extracts signal from noise. Detects emotional state. | Single AI call via OpenRouter |
-| **Acting** | Drafts in your voice. Scores its own work. | Two AI calls (draft + score) via OpenRouter |
-| **Reviewing** | Collects signals. Closes the feedback loop. | Planned — Phase 3 |
+| **Strategist** | **Agent** (loop + tools + memory) | Claude Managed Agents session. Calls 7 custom tools to read/write Postgres. Reasons over weeks of data. The only true agent. |
+| **Noticing** | LLM workflow (zero-shot, single call) | One call to OpenRouter. Input: brain dump + context. Output: structured JSON. No tools, no memory, no loop. |
+| **Acting** | LLM workflow (few-shot, two calls) | Draft call + separate scoring call via OpenRouter. Assembles voice profile as few-shot context. No loop. |
+| **Edit Diff Analysis** | LLM workflow (zero-shot, single call) | Categorizes what the user changed. Fires after edit+approve. |
+| **Reviewing** | LLM workflow (planned) | Will parse engagement data and generate weekly summary. Single call. |
 
 ### Four Company Types
 
@@ -121,7 +124,7 @@ Profiles are per-platform with recency weighting (5% decay/week). Week 1: generi
 
 ## Why Claude Managed Agents for the Strategist?
 
-The Strategist is fundamentally different from the other agents. Noticing and Acting are single LLM calls — input in, output out. The Strategist needs to **reason across multiple data sources, make judgment calls, and produce structured decisions**. That's an agent problem, not a prompt problem.
+The Strategist is the only true agent in ShipLoop. Noticing and Acting are LLM workflows — input in, output out. The Strategist needs to **reason across multiple data sources, decide which data to read based on what it finds, and produce structured decisions**. That's an agent problem, not a prompt problem.
 
 We evaluated three approaches:
 
@@ -172,7 +175,7 @@ We chose Managed Agents because:
 
 ## What's Next
 
-- Reviewing Agent (signal collection)
+- Reviewing workflow (signal collection)
 - Weekly summary generation
 - Voice input (Whisper)
 - Voice profile aggregation (distilled summaries at scale)
