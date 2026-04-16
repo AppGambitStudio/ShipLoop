@@ -30,8 +30,9 @@ storage/
 .aidesigner/mcp-latest.html
 
 # Test results
-.tests/node_modules/
-.tests/results/
+__tests__/node_modules/
+__tests__/results/
+__tests__/.env
 
 # Internal docs (spec, not public)
 .docs/

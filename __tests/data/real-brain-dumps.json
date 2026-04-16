@@ -1,0 +1,62 @@
+{
+  "_instructions": "Replace with 10 REAL brain dumps — the messier and more authentic, the better. For each, also write what YOU would extract as opportunities (the ground truth). This is how we measure Noticing accuracy.",
+  "dumps": [
+    {
+      "raw_text": "REPLACE: A real messy brain dump from a day of work",
+      "ground_truth_opportunities": [
+        {
+          "description": "REPLACE: What you'd extract as opportunity 1",
+          "angle": "proof-of-execution",
+          "channels": ["linkedin"],
+          "urgency": "high"
+        }
+      ],
+      "ground_truth_emotional_state": "neutral"
+    },
+    {
+      "raw_text": "REPLACE: Another real brain dump — mix of relevant and irrelevant",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "neutral"
+    },
+    {
+      "raw_text": "REPLACE: A brain dump with multiple opportunities",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "neutral"
+    },
+    {
+      "raw_text": "REPLACE: A stressed brain dump",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "stressed"
+    },
+    {
+      "raw_text": "REPLACE: An excited brain dump — something big happened",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "excited"
+    },
+    {
+      "raw_text": "REPLACE: A low-signal brain dump — mostly noise",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "neutral"
+    },
+    {
+      "raw_text": "REPLACE: A brain dump about a debugging session",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "neutral"
+    },
+    {
+      "raw_text": "REPLACE: A brain dump mixing personal and work stuff",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "neutral"
+    },
+    {
+      "raw_text": "REPLACE: A brain dump about a client interaction or user feedback",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "neutral"
+    },
+    {
+      "raw_text": "REPLACE: A brain dump with a strategic decision or pricing thought",
+      "ground_truth_opportunities": [],
+      "ground_truth_emotional_state": "neutral"
+    }
+  ]
+}

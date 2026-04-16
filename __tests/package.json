@@ -1,0 +1,21 @@
+{
+  "name": "shiploop-viability-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:voice": "tsx test-1-voice-profile.ts",
+    "test:strategist": "tsx test-2-strategist-reasoning.ts",
+    "test:noticing": "tsx test-3-noticing-extraction.ts",
+    "test:confidence": "tsx test-4-confidence-calibration.ts",
+    "test:all": "tsx test-2-strategist-reasoning.ts && tsx test-4-confidence-calibration.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

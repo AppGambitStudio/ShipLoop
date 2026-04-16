@@ -1,0 +1,113 @@
+{
+  "_instructions": "Replace these with 20 of YOUR real posts. The more authentic the better. Include a mix of platforms if possible.",
+  "_format": "Each post should have: platform, content (the full post text), and engagement (optional, for context)",
+  "posts": [
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 1",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 2",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 3",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 4",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 5",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 6",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 7",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 8",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 9",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 10",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 11",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 12",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 13",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 14",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 15",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 16",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 17",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 18",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 19",
+      "engagement": { "likes": 0, "comments": 0 }
+    },
+    {
+      "platform": "linkedin",
+      "content": "REPLACE WITH YOUR REAL POST 20",
+      "engagement": { "likes": 0, "comments": 0 }
+    }
+  ],
+  "brain_dumps_for_drafting": [
+    "REPLACE: Write a real brain dump here — something you'd actually say after a day of work",
+    "REPLACE: Another real brain dump — messy, stream of consciousness",
+    "REPLACE: A third brain dump — maybe about a client win or a tool you shipped",
+    "REPLACE: A fourth brain dump — something smaller, a debug session or a meeting insight",
+    "REPLACE: A fifth brain dump — maybe emotional, stressed or excited about something"
+  ]
+}

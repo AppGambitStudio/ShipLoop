@@ -1,0 +1,140 @@
+{
+  "user_config": {
+    "company_type": "service_company",
+    "goal_statement": "Be known as the team that ships cloud + AI tools, not just talks about them. Target: 3 inbound enquiries per month from CTOs at mid-size companies.",
+    "channels": ["linkedin", "reddit", "twitter", "github_readme"],
+    "silence_threshold_days": 14
+  },
+  "assets": [
+    {
+      "id": "asset-1",
+      "name": "CloudCorrect",
+      "one_liner": "Open-source AWS audit tool with 65 checks across 12 services",
+      "category": "open_source",
+      "distribution_status": "distributed",
+      "priority_score": 0.8,
+      "last_distributed_at": "2026-03-20"
+    },
+    {
+      "id": "asset-2",
+      "name": "DocProof",
+      "one_liner": "AI-powered document verification tool for enterprise",
+      "category": "product",
+      "distribution_status": "in_progress",
+      "priority_score": 0.7,
+      "last_distributed_at": "2026-03-25"
+    },
+    {
+      "id": "asset-3",
+      "name": "Presentify",
+      "one_liner": "Multi-provider AI presentation generator",
+      "category": "product",
+      "distribution_status": "undistributed",
+      "priority_score": 0.5,
+      "last_distributed_at": null
+    },
+    {
+      "id": "asset-4",
+      "name": "IPOIQ",
+      "one_liner": "IPO intelligence and analysis platform",
+      "category": "product",
+      "distribution_status": "undistributed",
+      "priority_score": 0.4,
+      "last_distributed_at": null
+    }
+  ],
+  "posted_content_last_30_days": [
+    {
+      "week": 1,
+      "posts": [
+        {
+          "platform": "linkedin",
+          "content": "Shipped CloudCorrect v2. 65 AWS checks across 12 services. MIT licensed. If your cloud bill surprises you, this is where to start.",
+          "asset": "CloudCorrect",
+          "engagement": { "impressions": 340, "reactions": 28, "comments": 6, "connection_requests_from_ctos": 4 },
+          "traction": "strong"
+        },
+        {
+          "platform": "reddit",
+          "content": "CloudCorrect v2 setup walkthrough with architecture diagrams and sample output for r/aws",
+          "asset": "CloudCorrect",
+          "engagement": { "upvotes": 180, "comments": 23 },
+          "traction": "strong"
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "posts": [
+        {
+          "platform": "linkedin",
+          "content": "A client processed 400 documents through DocProof in a single day. That's 3 days of manual work eliminated.",
+          "asset": "DocProof",
+          "engagement": { "impressions": 210, "reactions": 15, "comments": 3, "connection_requests_from_ctos": 1 },
+          "traction": "some"
+        },
+        {
+          "platform": "linkedin",
+          "content": "Thinking about why most AI tools promise transformation but deliver incremental improvement. The gap is execution, not capability.",
+          "asset": null,
+          "engagement": { "impressions": 520, "reactions": 42, "comments": 11, "connection_requests_from_ctos": 0 },
+          "traction": "some"
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "posts": [
+        {
+          "platform": "linkedin",
+          "content": "5 lessons from building AI tools for enterprises that actually get used. Thread.",
+          "asset": null,
+          "engagement": { "impressions": 680, "reactions": 55, "comments": 18, "connection_requests_from_ctos": 0 },
+          "traction": "strong"
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "posts": [
+        {
+          "platform": "linkedin",
+          "content": "The future of cloud auditing is automated, continuous, and open-source. Here's why we bet on this direction.",
+          "asset": "CloudCorrect",
+          "engagement": { "impressions": 290, "reactions": 12, "comments": 2, "connection_requests_from_ctos": 0 },
+          "traction": "none"
+        },
+        {
+          "platform": "twitter",
+          "content": "Hot take: most cloud audit tools are designed for compliance teams, not engineers. We built CloudCorrect for engineers first.",
+          "asset": "CloudCorrect",
+          "engagement": { "impressions": 1200, "retweets": 8, "replies": 3 },
+          "traction": "some"
+        }
+      ]
+    }
+  ],
+  "approval_patterns_last_30_days": {
+    "approved_without_edit": 4,
+    "approved_with_edit": 2,
+    "skipped": 3,
+    "skip_reasons": {
+      "tone_wrong": 2,
+      "too_generic": 1
+    },
+    "common_edits": [
+      "Removed 'excited to share' opening, replaced with direct statement",
+      "Added specific client metric that was in the brain dump but not in the draft"
+    ]
+  },
+  "previous_monologues": [
+    {
+      "week_of": "2026-03-17",
+      "monologue": "Week 1. Strong start. CloudCorrect launch hit the right audience — 4 CTO connection requests from LinkedIn alone. Reddit post also performed well. The proof-of-execution angle is landing. Need to get DocProof into the pipeline next week with a similar outcome-first approach."
+    },
+    {
+      "week_of": "2026-03-24",
+      "monologue": "Week 2. DocProof post was decent but didn't generate the same CTO-level engagement as CloudCorrect. The '400 documents' stat is strong but the framing was too product-focused. The 'AI tools promise vs deliver' insight post got high impressions but zero CTO connections — it attracted the wrong audience. Concerning pattern: we're drifting toward thought leadership. Need to pull back to proof-of-execution."
+    }
+  ]
+}
