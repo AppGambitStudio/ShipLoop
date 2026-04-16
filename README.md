@@ -119,6 +119,30 @@ Every interaction trains the engine:
 
 Profiles are per-platform with recency weighting (5% decay/week). Week 1: generic drafts. Month 3: sounds like you.
 
+## Why Claude Managed Agents for the Strategist?
+
+The Strategist is fundamentally different from the other agents. Noticing and Acting are single LLM calls — input in, output out. The Strategist needs to **reason across multiple data sources, make judgment calls, and produce structured decisions**. That's an agent problem, not a prompt problem.
+
+We evaluated three approaches:
+
+| Approach | Pros | Cons |
+|---|---|---|
+| **Single LLM call** (dump all data into one prompt) | Simple, fast | Context window limits at scale. Can't read data conditionally. No tool use. |
+| **Custom agent loop** (build our own tool-calling loop) | Full control | We'd build what Anthropic already built — tool execution, state management, retries, compaction. Maintenance burden. |
+| **Claude Managed Agents** | Managed infrastructure, built-in tool execution, persistent sessions, automatic compaction | Beta API. Vendor dependency. Opus cost. |
+
+We chose Managed Agents because:
+
+1. **The Strategist's job is open-ended reasoning.** It reads its own prior monologues, cross-references posts against approval patterns, and detects narrative drift. That reasoning path isn't predictable — the agent needs to decide which tools to call and in what order based on what it finds. A single prompt can't do this well.
+
+2. **Custom tools keep our data local.** The agent runs in Anthropic's cloud but can only access our Postgres through 7 custom tools we defined. It can't run bash, read files, or access the network. We control exactly what data it sees and what it can write.
+
+3. **We don't want to maintain an agent runtime.** Tool execution, error recovery, context compaction, heartbeating — Managed Agents handles all of this. We focus on the tools and the prompt, not the infrastructure.
+
+4. **The operational agents stay on OpenRouter.** Only the Strategist uses Managed Agents (and Opus). Noticing, Acting, and Reviewing use OpenRouter with configurable models. This keeps operational costs low while giving the Strategist the reasoning depth it needs.
+
+**Trade-off acknowledged:** Managed Agents is in beta. If the API changes or pricing becomes prohibitive, we can fall back to a custom agent loop using the same tool handlers — they're just Postgres queries. The tools are the stable interface; the runtime is swappable.
+
 ## Tech Stack
 
 | Component | Technology |
