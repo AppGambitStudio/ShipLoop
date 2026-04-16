@@ -42,21 +42,44 @@ export async function readPostedContent(userId: string, days: number) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
 
-  const rows = await db
+  // Return ALL drafted content (not just posted) so the Strategist sees the full picture:
+  // what was generated, what was approved, what was skipped, what was posted
+  const allDrafts = await db
     .select({
-      id: postedContent.id,
+      id: draftedContent.id,
       platform: draftedContent.platform,
       content: draftedContent.content,
       approvedContent: draftedContent.approvedContent,
       confidenceScore: draftedContent.confidenceScore,
       approvalStatus: draftedContent.approvalStatus,
+      sourceTag: draftedContent.sourceTag,
+      reasoning: draftedContent.reasoning,
+      draftedAt: draftedContent.createdAt,
+      approvedAt: draftedContent.approvedAt,
+      opportunityDescription: opportunities.description,
+      opportunityAngle: opportunities.angle,
+      brainDumpDate: inputDumps.createdAt,
+    })
+    .from(draftedContent)
+    .innerJoin(opportunities, eq(draftedContent.opportunityId, opportunities.id))
+    .innerJoin(inputDumps, eq(opportunities.inputDumpId, inputDumps.id))
+    .where(
+      and(
+        eq(inputDumps.userId, userId),
+        gte(draftedContent.createdAt, cutoff)
+      )
+    )
+    .orderBy(desc(draftedContent.createdAt));
+
+  // Also get posted content with engagement data (if any)
+  const posted = await db
+    .select({
+      draftId: postedContent.draftedContentId,
       postUrl: postedContent.postUrl,
       postedAt: postedContent.postedAt,
       upvotes: postedContent.upvotes,
       comments: postedContent.comments,
       tractionFlag: postedContent.tractionFlag,
-      opportunityDescription: opportunities.description,
-      opportunityAngle: opportunities.angle,
     })
     .from(postedContent)
     .innerJoin(draftedContent, eq(postedContent.draftedContentId, draftedContent.id))
@@ -67,10 +90,32 @@ export async function readPostedContent(userId: string, days: number) {
         eq(inputDumps.userId, userId),
         gte(postedContent.postedAt, cutoff)
       )
-    )
-    .orderBy(desc(postedContent.postedAt));
+    );
 
-  return { posts: rows, count: rows.length, daysBack: days };
+  // Merge post data into drafts
+  const postMap = new Map(posted.map((p) => [p.draftId, p]));
+  const enriched = allDrafts.map((d) => ({
+    ...d,
+    posted: postMap.get(d.id) ?? null,
+  }));
+
+  // Summary stats for quick assessment
+  const summary = {
+    totalDrafts: allDrafts.length,
+    byStatus: {
+      pending: allDrafts.filter((d) => d.approvalStatus === "pending").length,
+      approved: allDrafts.filter((d) => d.approvalStatus === "approved").length,
+      edited: allDrafts.filter((d) => d.approvalStatus === "edited").length,
+      skipped: allDrafts.filter((d) => d.approvalStatus === "skipped").length,
+      expired: allDrafts.filter((d) => d.approvalStatus === "expired").length,
+    },
+    actuallyPosted: posted.length,
+    approvedButNotPosted: allDrafts.filter(
+      (d) => (d.approvalStatus === "approved" || d.approvalStatus === "edited") && !postMap.has(d.id)
+    ).length,
+  };
+
+  return { drafts: enriched, summary, daysBack: days };
 }
 
 export async function readInternalMonologue(userId: string, count: number) {

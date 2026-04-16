@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { openrouter, SONNET_MODEL } from "./openrouter.js";
+import { callAiJson } from "./retry.js";
 import { buildNoticingPrompt } from "./prompts/noticing-system.js";
 
 const OpportunitySchema = z.object({
@@ -22,7 +22,7 @@ interface NoticingInput {
   rawText: string;
   companyType: string;
   assets: Array<{ name: string; oneLiner: string; category: string; targetAudience: string }>;
-  directives: string[];
+  directives: Record<string, unknown> | null;
 }
 
 export async function runNoticingAgent(input: NoticingInput): Promise<NoticingOutput> {
@@ -32,29 +32,10 @@ export async function runNoticingAgent(input: NoticingInput): Promise<NoticingOu
     directives: input.directives,
   });
 
-  const response = await openrouter.messages.create({
-    model: SONNET_MODEL,
-    max_tokens: 2048,
+  return callAiJson({
     system: systemPrompt,
-    messages: [
-      {
-        role: "user",
-        content: `Analyze this brain dump and extract distribution opportunities:\n\n${input.rawText}`,
-      },
-    ],
+    userMessage: `Analyze this brain dump and extract distribution opportunities:\n\n${input.rawText}`,
+    schema: NoticingOutputSchema,
+    maxRetries: 2,
   });
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text response from Noticing Agent");
-  }
-
-  // Strip markdown code fences if present
-  let jsonText = textBlock.text.trim();
-  if (jsonText.startsWith("```")) {
-    jsonText = jsonText.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-  }
-
-  const parsed = JSON.parse(jsonText);
-  return NoticingOutputSchema.parse(parsed);
 }

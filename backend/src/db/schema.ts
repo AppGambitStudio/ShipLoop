@@ -144,6 +144,13 @@ export const assets = pgTable("assets", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const processingStatus = pgEnum("processing_status", [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+]);
+
 export const inputDumps = pgTable("input_dumps", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
@@ -154,6 +161,8 @@ export const inputDumps = pgTable("input_dumps", {
   voiceTranscript: text("voice_transcript"),
   voiceFilePath: text("voice_file_path"),
   emotionalState: emotionalState("emotional_state").default("neutral"),
+  processingStatus: processingStatus("processing_status").notNull().default("pending"),
+  processingError: text("processing_error"),
   processedAt: timestamp("processed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -268,4 +277,20 @@ export const voiceProfileEntries = pgTable("voice_profile_entries", {
   engagementScore: real("engagement_score"),
   weight: real("weight").notNull().default(1.0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Stores Anthropic Managed Agent + Environment IDs (created once, reused across sessions)
+export const managedAgentsConfig = pgTable("managed_agents_config", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id),
+  agentName: text("agent_name").notNull(),
+  agentId: text("agent_id").notNull(),
+  agentVersion: integer("agent_version").notNull(),
+  environmentId: text("environment_id").notNull(),
+  lastSessionId: text("last_session_id"),
+  lastRunAt: timestamp("last_run_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

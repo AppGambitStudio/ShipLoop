@@ -8,9 +8,10 @@ import {
   voiceProfileEntries,
 } from "../db/schema.js";
 import { eq, and, desc } from "drizzle-orm";
+import { analyzeDiff } from "../agents/diff-analysis.js";
 
 const editBody = z.object({
-  content: z.string().min(1),
+  editedContent: z.string().min(1),
 });
 
 const skipBody = z.object({
@@ -19,8 +20,12 @@ const skipBody = z.object({
 });
 
 export async function approvalRoutes(app: FastifyInstance) {
-  // GET /api/drafts/pending — list pending drafts for user
+  // GET /api/drafts/pending — list pending drafts for user with pagination
   app.get("/api/drafts/pending", { onRequest: [app.authenticate] }, async (request) => {
+    const query = request.query as { limit?: string; offset?: string };
+    const limit = Math.min(parseInt(query.limit || "10", 10), 50);
+    const offset = parseInt(query.offset || "0", 10);
+
     const results = await db
       .select({
         id: draftedContent.id,
@@ -29,13 +34,13 @@ export async function approvalRoutes(app: FastifyInstance) {
         content: draftedContent.content,
         confidenceScore: draftedContent.confidenceScore,
         reasoning: draftedContent.reasoning,
+        sourceTag: draftedContent.sourceTag,
         createdAt: draftedContent.createdAt,
         opportunityId: draftedContent.opportunityId,
         description: opportunities.description,
         angle: opportunities.angle,
         urgency: opportunities.urgency,
-        rawText: inputDumps.rawText,
-        dumpId: inputDumps.id,
+        dumpCreatedAt: inputDumps.createdAt,
       })
       .from(draftedContent)
       .innerJoin(opportunities, eq(draftedContent.opportunityId, opportunities.id))
@@ -46,9 +51,50 @@ export async function approvalRoutes(app: FastifyInstance) {
           eq(draftedContent.approvalStatus, "pending")
         )
       )
-      .orderBy(desc(draftedContent.confidenceScore));
+      .orderBy(desc(draftedContent.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-    return results;
+    // Get total count for pagination
+    const countResult = await db
+      .select({ id: draftedContent.id })
+      .from(draftedContent)
+      .innerJoin(opportunities, eq(draftedContent.opportunityId, opportunities.id))
+      .innerJoin(inputDumps, eq(opportunities.inputDumpId, inputDumps.id))
+      .where(
+        and(
+          eq(inputDumps.userId, request.userId),
+          eq(draftedContent.approvalStatus, "pending")
+        )
+      );
+
+    return {
+      drafts: results,
+      total: countResult.length,
+      limit,
+      offset,
+    };
+  });
+
+  // GET /api/drafts/stats — counts by approval status
+  app.get("/api/drafts/stats", { onRequest: [app.authenticate] }, async (request) => {
+    const allDrafts = await db
+      .select({
+        approvalStatus: draftedContent.approvalStatus,
+      })
+      .from(draftedContent)
+      .innerJoin(opportunities, eq(draftedContent.opportunityId, opportunities.id))
+      .innerJoin(inputDumps, eq(opportunities.inputDumpId, inputDumps.id))
+      .where(eq(inputDumps.userId, request.userId));
+
+    const stats = { total: 0, pending: 0, approved: 0, edited: 0, skipped: 0, expired: 0 };
+    for (const d of allDrafts) {
+      stats.total++;
+      const s = d.approvalStatus as keyof typeof stats;
+      if (s in stats) stats[s]++;
+    }
+
+    return stats;
   });
 
   // POST /api/drafts/:id/approve
@@ -97,19 +143,29 @@ export async function approvalRoutes(app: FastifyInstance) {
       .update(draftedContent)
       .set({
         approvalStatus: "edited",
-        approvedContent: body.content,
+        approvedContent: body.editedContent,
         approvedAt: new Date(),
       })
       .where(eq(draftedContent.id, id));
 
-    // Save to voice profile with higher weight (edit diffs are more valuable)
+    // Analyze diff categories (async — don't block response)
+    let diffCategories = null;
+    try {
+      diffCategories = await analyzeDiff(draft.content, body.editedContent);
+    } catch (err) {
+      // Diff analysis failure is non-critical — log and continue
+      app.log.error({ err, draftId: id }, "Diff analysis failed");
+    }
+
+    // Save to voice profile with higher weight (edit diffs are most valuable)
     await db.insert(voiceProfileEntries).values({
       userId: request.userId,
       platform: draft.platform as any,
       entryType: "edit_diff",
       draftedContentId: id,
       originalContent: draft.content,
-      finalContent: body.content,
+      finalContent: body.editedContent,
+      diffCategories,
       weight: 2.0,
     });
 

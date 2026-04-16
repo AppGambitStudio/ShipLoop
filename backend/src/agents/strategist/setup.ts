@@ -1,6 +1,8 @@
 /**
  * One-time bootstrap: create Anthropic Managed Agent + Environment,
  * store IDs in managed_agents_config for reuse across sessions.
+ *
+ * Uses the EXACT API pattern validated in test-managed-agent.ts.
  */
 
 import { anthropic } from "../anthropic.js";
@@ -38,17 +40,29 @@ export async function getOrCreateStrategistSetup(
     };
   }
 
-  // Create new agent — disable all built-in tools, only use custom tools
+  // Create new agent — disable ALL built-in tools, only custom tools
+  // Matches validated pattern from test-managed-agent.ts
   const agent = await (anthropic.beta.agents as any).create({
+    name: `ShipLoop Strategist (${companyType})`,
     model: env.STRATEGIST_MODEL,
-    name: `shiploop-strategist-${companyType}`,
-    description: `ShipLoop Strategist agent for a ${companyType} builder. Runs weekly/quarterly to issue distribution directives.`,
-    tools: strategistCustomTools,
-    // Disable all built-in tools — strategist only uses our custom tools
+    system: "You are the Strategist for ShipLoop. Your system prompt will be provided per session.",
+    tools: [
+      {
+        type: "agent_toolset_20260401",
+        default_config: { enabled: false },  // disable ALL built-in tools
+      },
+      ...strategistCustomTools,
+    ],
   });
 
-  // Create environment for persistent state
-  const environment = await (anthropic.beta.environments as any).create(agent.id);
+  // Create environment — minimal cloud container
+  const environment = await (anthropic.beta.environments as any).create({
+    name: `shiploop-strategist-${userId.slice(0, 8)}`,
+    config: {
+      type: "cloud",
+      networking: { type: "unrestricted" },
+    },
+  });
 
   // Store in DB
   await db.insert(managedAgentsConfig).values({

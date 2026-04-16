@@ -49,12 +49,27 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ rawText }),
       }),
-    list: () => fetchAPI<any[]>("/api/dumps"),
+    list: (limit = 10, offset = 0) =>
+      fetchAPI<{ dumps: any[]; total: number; limit: number; offset: number }>(
+        `/api/dumps?limit=${limit}&offset=${offset}`
+      ),
+    reprocess: (id: string) =>
+      fetchAPI<{ id: string; status: string }>(`/api/dumps/${id}/reprocess`, {
+        method: "POST",
+        body: JSON.stringify({}),
+      }),
   },
   drafts: {
-    pending: () => fetchAPI<any[]>("/api/drafts/pending"),
+    pending: (limit = 10, offset = 0) =>
+      fetchAPI<{ drafts: any[]; total: number; limit: number; offset: number }>(
+        `/api/drafts/pending?limit=${limit}&offset=${offset}`
+      ),
+    stats: () =>
+      fetchAPI<{ total: number; pending: number; approved: number; edited: number; skipped: number; expired: number }>(
+        "/api/drafts/stats"
+      ),
     approve: (id: string) =>
-      fetchAPI<any>(`/api/drafts/${id}/approve`, { method: "POST" }),
+      fetchAPI<any>(`/api/drafts/${id}/approve`, { method: "POST", body: JSON.stringify({}) }),
     edit: (id: string, editedContent: string) =>
       fetchAPI<any>(`/api/drafts/${id}/edit`, {
         method: "POST",
@@ -65,5 +80,26 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ reason, reasonText }),
       }),
+  },
+  posted: {
+    report: (draftId: string, postUrl: string) =>
+      fetchAPI<any>("/api/posted", {
+        method: "POST",
+        body: JSON.stringify({ draftId, postUrl }),
+      }),
+    list: () => fetchAPI<any[]>("/api/posted"),
+  },
+  voiceProfile: {
+    stats: () => fetchAPI<any>("/api/voice-profile/stats"),
+    recent: (limit = 20) => fetchAPI<any[]>(`/api/voice-profile/recent?limit=${limit}`),
+  },
+  strategist: {
+    run: (type: "weekly" | "quarterly" = "weekly") =>
+      fetchAPI<{ status: string; type: string }>("/api/strategist/run", {
+        method: "POST",
+        body: JSON.stringify({ type }),
+      }),
+    latest: () => fetchAPI<any>("/api/strategist/latest"),
+    history: (limit = 10) => fetchAPI<any[]>(`/api/strategist/history?limit=${limit}`),
   },
 };

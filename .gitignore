@@ -1,11 +1,51 @@
-.docs/
-*.log
+# Dependencies
+node_modules/
+
+# Environment files
 .env
+.env.local
+.env.*.local
 .tests/.env
-.tests/node_modules/
-.tests/results/
+
+# Build output
+dist/
+.next/
+out/
+
+# Database
+backend/drizzle/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Storage (local file uploads)
+storage/
+
+# AI Designer (generated runs + temp)
 .aidesigner/runs/
 .aidesigner/mcp-latest.html
-node_modules/
-.next/
-storage/
+
+# Test results
+.tests/node_modules/
+.tests/results/
+
+# Internal docs (spec, not public)
+.docs/
+
+# Superpowers plans (internal)
+docs/superpowers/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Lock files (keep package-lock, ignore others)
+yarn.lock
+pnpm-lock.yaml
+bun.lockb

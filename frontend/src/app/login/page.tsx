@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
@@ -11,6 +11,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // If already logged in, redirect
+    const token = localStorage.getItem("shiploop_token");
+    if (token) {
+      api.config.get()
+        .then((config) => router.replace(config ? "/dump" : "/onboard"))
+        .catch(() => router.replace("/onboard"));
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +33,19 @@ export default function LoginPage() {
         : await api.auth.login(email, password);
 
       localStorage.setItem("shiploop_token", result.token);
-      router.push("/dump");
+
+      if (isRegister) {
+        // New user — always go to onboard
+        router.push("/onboard");
+      } else {
+        // Existing user — check if config exists
+        try {
+          const config = await api.config.get();
+          router.push(config ? "/dump" : "/onboard");
+        } catch {
+          router.push("/onboard");
+        }
+      }
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -69,10 +91,11 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 required
+                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-gray-100 placeholder-gray-600 outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
-                placeholder="••••••••"
+                placeholder="Min 8 characters"
               />
             </div>
 

@@ -1,12 +1,11 @@
 export function buildActingPrompt(
   platformName: string,
   voiceContext: string,
-  directives: string[]
+  directives: Record<string, unknown> | null
 ): string {
-  const directiveList =
-    directives.length > 0
-      ? directives.map((d) => `- ${d}`).join("\n")
-      : "- No active directives";
+  const directiveList = directives
+    ? JSON.stringify(directives, null, 2)
+    : "No active directives (first run).";
 
   return `You are the Acting Agent for ShipLoop. Your job is to draft platform-specific content for distribution.
 

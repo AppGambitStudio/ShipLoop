@@ -76,11 +76,12 @@ export async function runStrategistSession(
     const isQuarterly = type === "quarterly";
     const systemPrompt = buildStrategistSystemPrompt(companyType, isQuarterly, lastRunDate);
 
-    // 5. Create session
+    // 5. Create session — matches validated API pattern
     logger.info({ userId, agentId, type }, "Creating Strategist session");
-    const session = await (anthropic.beta.sessions as any).create(agentId, {
+    const session = await (anthropic.beta.sessions as any).create({
+      agent: agentId,
       environment_id: environmentId,
-      system: systemPrompt,
+      title: `ShipLoop ${type} strategy run`,
     });
     sessionId = session.id;
     logger.info({ sessionId }, "Session created");
@@ -88,10 +89,14 @@ export async function runStrategistSession(
     // 6. Open stream BEFORE sending message (validated API pattern)
     const stream = await (anthropic.beta.sessions as any).events.stream(session.id);
 
-    // 7. Send trigger message
-    const triggerMessage = isQuarterly
-      ? "Run your quarterly strategic review. Read 4 monologue entries, 90 days of posted content and approval patterns. Compute drift score and simulate paths if needed. Issue updated directives."
-      : "Run your weekly strategic review. Read your last 2 monologue entries, 30 days of posted content and approval patterns. Assess what changed, issue updated directives.";
+    // 7. Send trigger message — include the full system context since session doesn't accept system param
+    const triggerMessage = `${systemPrompt}
+
+---
+
+${isQuarterly
+      ? "Run your QUARTERLY strategic review now. Read 4 monologue entries, 90 days of posted content and approval patterns. Compute drift score and simulate paths if needed. Issue updated directives and write your monologue."
+      : "Run your WEEKLY strategic review now. Read your last 2 monologue entries, 30 days of posted content and approval patterns. Assess what changed, issue updated directives and write your monologue."}`;
 
     await (anthropic.beta.sessions as any).events.send(session.id, {
       events: [
@@ -108,16 +113,17 @@ export async function runStrategistSession(
     const toolEvents: Record<string, { name: string; input: Record<string, unknown> }> = {};
     let done = false;
 
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error("Strategist session timed out after 5 minutes")), SESSION_TIMEOUT_MS);
-    });
+    // Timeout that kills the stream
+    const timeoutHandle = setTimeout(() => {
+      logger.error({ sessionId }, "Strategist session timed out — aborting stream");
+      done = true;
+      try { stream.controller?.abort?.(); } catch { /* ignore */ }
+      try { (stream as any).return?.(); } catch { /* ignore */ }
+    }, SESSION_TIMEOUT_MS);
 
-    const processEvents = async () => {
+    try {
       for await (const event of stream) {
-        const elapsed = Date.now() - startTime;
-        if (elapsed > SESSION_TIMEOUT_MS) {
-          throw new Error("Strategist session timed out after 5 minutes");
-        }
+        if (done) break;
 
         switch (event.type) {
           case "agent.custom_tool_use": {
@@ -220,9 +226,9 @@ export async function runStrategistSession(
 
         if (done) break;
       }
-    };
-
-    await Promise.race([processEvents(), timeoutPromise]);
+    } finally {
+      clearTimeout(timeoutHandle);
+    }
 
     // 9. Update managed_agents_config with session info
     await db
